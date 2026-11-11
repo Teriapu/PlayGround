@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a27">
+  <link rel="icon" href="data:,">
+  <meta name="description" content="A playful, door-by-door biochemistry adventure. Learn the why behind every answer.">
+  <title>Cell Quest — Biochemistry, one door at a time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Cell Quest home" id="home-link"><span class="brand-mark"><span></span><span></span><span></span><span></span></span><span>CELL<span class="brand-light">QUEST</span></span></a>
+      <div class="top-meta"><span class="live-dot"></span><span>THE BIOCHEMISTRY ARCADE</span><span class="meta-divider"></span><span>FIELD NOTES · VOL. 01</span></div>
+      <button class="sound-toggle" id="sound-toggle" aria-label="Toggle sound effects" title="Toggle sound effects"><span class="sound-icon">♪</span><span class="sound-label">SOUND OFF</span></button>
+    </header>
+
+    <main id="app">
+      <section class="welcome-screen" id="welcome-screen">
+        <div class="welcome-copy">
+          <div class="eyebrow"><span class="eyebrow-line"></span> YOUR NEXT GREAT DISCOVERY</div>
+          <h1>Biochemistry<br>has <span class="italic-word">doors.</span></h1>
+          <p class="welcome-lede">Every question opens one. Pick the answer that feels right, then step inside to find out why.</p>
+          <div class="welcome-facts"><div><strong>06</strong><span>CHAPTERS</span></div><i></i><div><strong>30</strong><span>QUESTIONS</span></div><i></i><div><strong>∞</strong><span>“AHA!” MOMENTS</span></div></div>
+          <button class="primary-button" id="start-button"><span>CHOOSE YOUR CHAPTER</span><span class="button-arrow">↗</span></button>
+          <div class="tiny-note"><span>✳</span> No grades. Just good questions.</div>
+        </div>
+        <div class="welcome-art" aria-label="Illustration of glowing biochemical doors">
+          <div class="art-label art-label-top">FIG 01 — THE PATHWAY</div>
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="molecule molecule-a">O</div><div class="molecule molecule-b">N</div><div class="molecule molecule-c">P</div>
+          <div class="door-scene"><div class="scene-floor"></div><div class="hero-door"><div class="door-inner"><div class="door-panel"><span class="door-number">01</span><span class="door-glyph">✳</span><span class="door-caption">ENTER THE<br>UNKNOWN</span><span class="door-handle"></span></div></div></div><div class="door-shadow"></div></div>
+          <div class="art-label art-label-bottom">A LITTLE CURIOSITY GOES A LONG WAY <span>→</span></div>
+          <span class="art-star star-one">✳</span><span class="art-star star-two">✴</span>
+        </div>
+        <div class="welcome-footer"><span>01 / 06 — PICK A PATH</span><span>MADE FOR THE CURIOUS <span class="footer-spark">✳</span></span></div>
+      </section>
+
+      <section class="game-screen hidden" id="game-screen">
+        <aside class="sidebar">
+          <button class="back-button" id="back-button"><span>←</span> ALL CHAPTERS</button>
+          <div class="chapter-label">YOUR CURRENT EXPEDITION</div>
+          <div class="chapter-name" id="chapter-name">Foundations</div>
+          <div class="chapter-index" id="chapter-index">CHAPTER 01</div>
+          <div class="sidebar-rule"></div>
+          <div class="progress-heading"><span>FIELD PROGRESS</span><span id="progress-count">01 / 05</span></div>
+          <div class="progress-track"><div id="progress-fill"></div></div>
+          <div class="progress-dots" id="progress-dots"></div>
+          <div class="sidebar-bottom"><div class="streak-badge"><span class="streak-icon">✳</span><div><span class="streak-number" id="streak-count">0</span><span class="streak-caption">DOOR STREAK</span></div></div><div class="sidebar-tip"><span class="tip-star">✦</span><p>Wrong turns are still part of the map.</p></div><div class="chapter-switch"><span>CHANGE CHAPTER</span><button id="chapter-switch-button">↗</button></div></div>
+        </aside>
+
+        <div class="game-main">
+          <div class="game-topline"><div><span class="breadcrumb-muted">EXPEDITION</span><span class="crumb-slash">/</span><span id="crumb-chapter">FOUNDATIONS</span></div><div class="score-pill"><span class="score-star">✳</span><span id="score-count">0</span><span class="score-label">DISCOVERIES</span></div></div>
+          <div class="question-area">
+            <div class="question-kicker"><span class="question-number" id="question-number">QUESTION 01</span><span class="kicker-dash"></span><span class="question-topic" id="question-topic">THE BUILDING BLOCKS</span></div>
+            <h2 class="question-text" id="question-text"></h2>
+            <div class="instruction"><span class="instruction-icon">↳</span> Pick a door. The answer is waiting inside.</div>
+          </div>
+          <div class="doors-grid" id="doors-grid"></div>
+          <div class="game-foot"><span>TRUST YOUR INSTINCTS. THEN LEARN THE WHY.</span><span>◈ &nbsp; BIOCHEMISTRY, UNLOCKED</span></div>
+        </div>
+      </section>
+
+      <section class="chapter-screen hidden" id="chapter-screen">
+        <div class="chapter-screen-head"><button class="back-button" id="home-button"><span>←</span> BACK TO HOME</button><div class="eyebrow"><span class="eyebrow-line"></span> SIX PATHWAYS INTO THE CELL</div><h2>Where to<br><span class="italic-word">begin?</span></h2><p>Choose a chapter. Every door has something to teach you.</p></div>
+        <div class="chapter-grid" id="chapter-grid"></div>
+        <div class="chapter-screen-footer"><span>01—06 / YOUR BIOCHEMISTRY FIELD GUIDE</span><span>✳ TAKE THE SCENIC ROUTE</span></div>
+      </section>
+
+      <div class="modal-backdrop hidden" id="feedback-modal" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
+        <div class="feedback-card" id="feedback-card">
+          <div class="feedback-top"><span class="feedback-status" id="feedback-status">DOOR OPENED</span><button class="modal-close" id="modal-close" aria-label="Close explanation">×</button></div>
+          <div class="feedback-symbol" id="feedback-symbol">✳</div>
+          <div class="feedback-choice" id="feedback-choice"></div>
+          <h2 id="feedback-title">You found it.</h2>
+          <p class="feedback-explanation" id="feedback-explanation"></p>
+          <div class="analogy-box hidden" id="analogy-box"><div class="analogy-heading"><span>✎</span> MAKE IT MAKE SENSE</div><p id="analogy-prompt">Before you move on, connect this idea to something you already know.</p><label for="analogy-input">YOUR ANALOGY</label><textarea id="analogy-input" rows="3" maxlength="280" placeholder="It's a little like…" autocomplete="off"></textarea><div class="analogy-bottom"><span id="analogy-hint">A comparison in your own words (at least 12 characters).</span><span id="char-count">0 / 280</span></div><div class="analogy-error hidden" id="analogy-error">Add a little more detail to your analogy before continuing.</div><button class="analogy-submit" id="analogy-submit">LOCK IN MY ANALOGY <span>↗</span></button></div>
+          <div class="feedback-actions" id="feedback-actions"><button class="continue-button" id="continue-button">NEXT QUESTION <span>→</span></button><button class="review-button" id="review-button">REVISIT THIS QUESTION</button></div>
+        </div>
+      </div>
+      <section class="complete-screen hidden" id="complete-screen"><div class="complete-card"><div class="complete-ornament">✳</div><div class="eyebrow"><span class="eyebrow-line"></span> EXPEDITION COMPLETE</div><h2>Look at you,<br><span class="italic-word">cell explorer.</span></h2><p id="complete-message">You made it through every door.</p><div class="complete-stats"><div><strong id="final-score">0/5</strong><span>FIRST-TRY FINDS</span></div><i></i><div><strong id="final-streak">0</strong><span>BEST STREAK</span></div></div><button class="primary-button" id="replay-button"><span>EXPLORE THIS CHAPTER AGAIN</span><span class="button-arrow">↗</span></button><button class="review-button complete-chapters" id="complete-chapters">PICK ANOTHER CHAPTER</button></div><div class="complete-decoration"><div class="complete-ring ring-a"></div><div class="complete-ring ring-b"></div><span>ATP</span><span>H₂O</span><span>✦</span></div></section>
+    </main>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
