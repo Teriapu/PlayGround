@@ -26,9 +26,9 @@
           <div class="eyebrow"><span class="eyebrow-line"></span> YOUR NEXT GREAT DISCOVERY</div>
           <h1>Biochemistry<br>has <span class="italic-word">doors.</span></h1>
           <p class="welcome-lede">Every question opens one. Pick the answer that feels right, then step inside to find out why.</p>
-          <div class="welcome-facts"><div><strong>06</strong><span>CHAPTERS</span></div><i></i><div><strong>30</strong><span>QUESTIONS</span></div><i></i><div><strong>∞</strong><span>“AHA!” MOMENTS</span></div></div>
+          <div class="welcome-facts"><div><strong>06</strong><span>CHAPTERS</span></div><i></i><div><strong>240</strong><span>QUESTION BANK</span></div><i></i><div><strong>∞</strong><span>“AHA!” MOMENTS</span></div></div>
           <button class="primary-button" id="start-button"><span>CHOOSE YOUR CHAPTER</span><span class="button-arrow">↗</span></button>
-          <div class="tiny-note"><span>✳</span> No grades. Just good questions.</div>
+          <div class="tiny-note"><span>✳</span> Five questions per chapter run. No grades, just good questions.</div>
         </div>
         <div class="welcome-art" aria-label="Illustration of glowing biochemical doors">
           <div class="art-label art-label-top">FIG 01 — THE PATHWAY</div>
@@ -78,13 +78,15 @@
           <div class="feedback-choice" id="feedback-choice"></div>
           <h2 id="feedback-title">You found it.</h2>
           <p class="feedback-explanation" id="feedback-explanation"></p>
-          <div class="analogy-box hidden" id="analogy-box"><div class="analogy-heading"><span>✎</span> MAKE IT MAKE SENSE</div><p id="analogy-prompt">Before you move on, connect this idea to something you already know.</p><label for="analogy-input">YOUR ANALOGY</label><textarea id="analogy-input" rows="3" maxlength="280" placeholder="It's a little like…" autocomplete="off"></textarea><div class="analogy-bottom"><span id="analogy-hint">A comparison in your own words (at least 12 characters).</span><span id="char-count">0 / 280</span></div><div class="analogy-error hidden" id="analogy-error">Add a little more detail to your analogy before continuing.</div><button class="analogy-submit" id="analogy-submit">LOCK IN MY ANALOGY <span>↗</span></button></div>
+          <div class="analogy-review hidden" id="analogy-review" aria-live="polite"></div>
+          <div class="analogy-box hidden" id="analogy-box"><div class="analogy-heading"><span>✎</span> MAKE IT MAKE SENSE</div><p id="analogy-prompt">Connect the idea to something familiar. What maps to what—and where does the comparison stop matching?</p><label for="analogy-input">YOUR ANALOGY</label><textarea id="analogy-input" rows="3" maxlength="280" placeholder="It's a little like…" autocomplete="off"></textarea><div class="analogy-bottom"><span id="analogy-hint">A comparison in your own words (at least 12 characters).</span><span id="char-count">0 / 280</span></div><div class="analogy-error hidden" id="analogy-error">Add a little more detail to your analogy before continuing.</div><button class="analogy-submit" id="analogy-submit">LOCK IN MY ANALOGY <span>↗</span></button></div>
           <div class="feedback-actions" id="feedback-actions"><button class="continue-button" id="continue-button">NEXT QUESTION <span>→</span></button><button class="review-button" id="review-button">REVISIT THIS QUESTION</button></div>
         </div>
       </div>
       <section class="complete-screen hidden" id="complete-screen"><div class="complete-card"><div class="complete-ornament">✳</div><div class="eyebrow"><span class="eyebrow-line"></span> EXPEDITION COMPLETE</div><h2>Look at you,<br><span class="italic-word">cell explorer.</span></h2><p id="complete-message">You made it through every door.</p><div class="complete-stats"><div><strong id="final-score">0/5</strong><span>FIRST-TRY FINDS</span></div><i></i><div><strong id="final-streak">0</strong><span>BEST STREAK</span></div></div><button class="primary-button" id="replay-button"><span>EXPLORE THIS CHAPTER AGAIN</span><span class="button-arrow">↗</span></button><button class="review-button complete-chapters" id="complete-chapters">PICK ANOTHER CHAPTER</button></div><div class="complete-decoration"><div class="complete-ring ring-a"></div><div class="complete-ring ring-b"></div><span>ATP</span><span>H₂O</span><span>✦</span></div></section>
     </main>
   </div>
+  <script src="bank-a.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

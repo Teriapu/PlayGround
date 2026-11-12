@@ -163,6 +163,12 @@ const chapters = [
   ]}
 ];
 
+const QUESTIONS_PER_QUIZ = 5;
+chapters.forEach(item => {
+  const supplemental = (window.bankA?.[item.id] || []).map(({ q, answers }) => ({ q, answers }));
+  item.questions = [...item.questions, ...supplemental].slice(0, 40);
+});
+
 const $ = (selector) => document.querySelector(selector);
 const screens = { welcome: $('#welcome-screen'), chapters: $('#chapter-screen'), game: $('#game-screen'), complete: $('#complete-screen') };
 const modal = $('#feedback-modal');
@@ -176,6 +182,7 @@ let reviewingQuestion = false;
 let soundOn = false;
 let audioContext;
 let currentOptions = [];
+let currentQuestions = [];
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, element]) => element.classList.toggle('hidden', key !== name));
@@ -204,7 +211,7 @@ function shuffle(items) {
   return result;
 }
 function renderQuestion() {
-  const question = chapter.questions[questionIndex];
+  const question = currentQuestions[questionIndex];
   hasAnswered = false;
   reviewingQuestion = false;
   currentOptions = shuffle(question.answers);
@@ -214,9 +221,9 @@ function renderQuestion() {
   $('#question-number').textContent = `QUESTION ${String(questionIndex + 1).padStart(2, '0')}`;
   $('#question-topic').textContent = chapter.topic;
   $('#question-text').textContent = question.q;
-  $('#progress-count').textContent = `${String(questionIndex + 1).padStart(2, '0')} / ${String(chapter.questions.length).padStart(2, '0')}`;
-  $('#progress-fill').style.width = `${(questionIndex / chapter.questions.length) * 100}%`;
-  $('#progress-dots').innerHTML = chapter.questions.map((_, i) => `<span class="${i < questionIndex ? 'done' : ''}"></span>`).join('');
+  $('#progress-count').textContent = `${String(questionIndex + 1).padStart(2, '0')} / ${String(currentQuestions.length).padStart(2, '0')}`;
+  $('#progress-fill').style.width = `${(questionIndex / currentQuestions.length) * 100}%`;
+  $('#progress-dots').innerHTML = currentQuestions.map((_, i) => `<span class="${i < questionIndex ? 'done' : ''}"></span>`).join('');
   $('#streak-count').textContent = streak;
   $('#score-count').textContent = score;
   $('#doors-grid').innerHTML = currentOptions.map((answer, i) => `<button class="answer-door" data-option="${i}" aria-label="Door ${i + 1}: ${escapeHtml(answer[0])}"><span class="door-number-small">0${i + 1}</span><span class="door-arch"><span class="door-glyph-small">${['✳', '◉', '⌘', '✦'][i]}</span></span><span class="door-answer">${escapeHtml(answer[0])}</span><span class="door-enter">STEP INSIDE ↗</span></button>`).join('');
@@ -229,7 +236,7 @@ function answerDoor(optionIndex) {
   if (hasAnswered) return;
   hasAnswered = true;
   const picked = currentOptions[optionIndex];
-  const correctAnswer = chapter.questions[questionIndex].answers.find(answer => answer[1]);
+  const correctAnswer = currentQuestions[questionIndex].answers.find(answer => answer[1]);
   const isCorrect = picked[1];
   document.querySelectorAll('.answer-door').forEach(button => button.disabled = true);
   if (!reviewingQuestion) {
@@ -249,9 +256,13 @@ function answerDoor(optionIndex) {
   $('#feedback-title').textContent = isCorrect ? 'You found it.' : 'Not quite this time.';
   $('#feedback-explanation').textContent = isCorrect ? picked[2] : `${picked[2]} The answer to look for is “${correctAnswer[0]}.” ${correctAnswer[2]}`;
   $('#analogy-box').classList.toggle('hidden', isCorrect);
+  $('#analogy-review').classList.add('hidden');
+  $('#analogy-review').replaceChildren();
   $('#analogy-error').classList.add('hidden');
   $('#analogy-input').value = '';
   $('#char-count').textContent = '0 / 280';
+  $('#analogy-submit').textContent = 'LOCK IN MY ANALOGY ↗';
+  $('#continue-button').textContent = 'NEXT QUESTION →';
   $('#feedback-actions').classList.toggle('hidden', !isCorrect);
   $('#review-button').classList.toggle('hidden', !isCorrect);
   $('#modal-close').classList.toggle('hidden', !isCorrect);
@@ -261,6 +272,7 @@ function answerDoor(optionIndex) {
 }
 function selectChapter(selected) {
   chapter = selected;
+  currentQuestions = shuffle(chapter.questions).slice(0, QUESTIONS_PER_QUIZ);
   questionIndex = score = streak = bestStreak = 0;
   renderQuestion();
   showScreen('game');
@@ -272,9 +284,9 @@ function renderChapters() {
 function continueGame() {
   modal.classList.add('hidden');
   questionIndex++;
-  if (questionIndex >= chapter.questions.length) {
+  if (questionIndex >= currentQuestions.length) {
     $('#progress-fill').style.width = '100%';
-    $('#final-score').textContent = `${score}/${chapter.questions.length}`;
+    $('#final-score').textContent = `${score}/${currentQuestions.length}`;
     $('#final-streak').textContent = bestStreak;
     $('#complete-message').textContent = `Every door in ${chapter.name} is open. You earned ${score} first-try ${score === 1 ? 'find' : 'finds'}—and built a better map along the way.`;
     showScreen('complete');
@@ -305,11 +317,39 @@ $('#analogy-submit').addEventListener('click', () => {
     $('#analogy-input').focus();
     return;
   }
+  const correctAnswer = currentQuestions[questionIndex].answers.find(answer => answer[1]);
+  const review = $('#analogy-review');
+  const notes = [
+    `Your analogy: “${analogy}”`,
+    `Self-check—not an automatic accuracy score: does your comparison preserve this key idea? ${correctAnswer[0]}`,
+    `Why it matters: ${correctAnswer[2]}`
+  ];
+  if (correctAnswer[3]) notes.push(`One possible comparison: ${correctAnswer[3]}`);
+  notes.push('Limit check: where does your comparison stop matching the biology?');
+  const reviseButton = document.createElement('button');
+  reviseButton.type = 'button';
+  reviseButton.className = 'analogy-revise';
+  reviseButton.textContent = 'REVISE MY ANALOGY';
+  reviseButton.addEventListener('click', () => {
+    review.classList.add('hidden');
+    $('#feedback-actions').classList.add('hidden');
+    $('#analogy-box').classList.remove('hidden');
+    $('#analogy-submit').textContent = 'UPDATE MY ANALOGY ↗';
+    $('#analogy-input').focus();
+  });
+  review.replaceChildren(
+    ...notes.map(note => {
+      const paragraph = document.createElement('p');
+      paragraph.textContent = note;
+      return paragraph;
+    }),
+    reviseButton
+  );
+  review.classList.remove('hidden');
   $('#analogy-box').classList.add('hidden');
   $('#feedback-actions').classList.remove('hidden');
-  $('#feedback-status').textContent = 'ANALOGY LOGGED · PATH CLEAR';
-  $('#feedback-title').textContent = 'That’s a connection.';
-  $('#feedback-explanation').textContent += ` Your analogy: “${analogy}” — connecting a new idea to something familiar is how it sticks.`;
+  $('#feedback-status').textContent = 'ANALOGY REVIEW · PATH CLEAR';
+  $('#feedback-title').textContent = 'Check—and refine—the mapping.';
   $('#continue-button').textContent = 'NEXT QUESTION →';
   $('#continue-button').focus();
 });
