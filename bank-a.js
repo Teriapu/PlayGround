@@ -239,6 +239,32 @@ const chapterBank = {
   ]
 };
 
+const molecularTopicGroups = {
+  dna: [
+    'DNA as the genetic material', 'DNA base pairing', 'DNA replication', 'the role of polymerase',
+    'the significance of DNA repair', 'the significance of the template strand', 'the purpose of the coding strand',
+    'DNA replication fidelity', 'the role of telomeres', 'the role of restriction enzymes',
+    'the role of PCR'
+  ],
+  'gene-expression': [
+    'transcription', 'the central dogma', 'gene expression', 'a promoter', 'a terminator sequence',
+    'the role of histones', 'epigenetics', 'the role of RNA splicing', 'the function of promoters and enhancers',
+    'the purpose of DNA methylation', 'the significance of RNA as a transient molecule',
+    'the difference between prokaryotic and eukaryotic gene expression'
+  ],
+  translation: [
+    'translation', 'a codon', 'RNA bases', 'the purpose of the genetic code', 'the role of mRNA',
+    'the role of tRNA', 'ribosomes', 'the genetic code being degenerate', 'the role of anticodons'
+  ],
+  genetics: [
+    'the meaning of a mutation', 'a frameshift mutation', 'a nonsense mutation',
+    'the relationship between genotype and phenotype', 'the meaning of a genome'
+  ]
+};
+for (const [id, topics] of Object.entries(molecularTopicGroups)) {
+  chapterBank[id] = chapterBank.genetics.filter(question => topics.includes(question.topic));
+}
+
 window.bankA = Object.fromEntries(
   Object.entries(chapterBank).map(([id, questions]) => [id, questions.map(makeQuestion)])
 );

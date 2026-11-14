@@ -134,7 +134,7 @@ const chapters = [
       ['A diagram of the cytoskeleton only', false, 'The fluid mosaic model describes the cell membrane’s lipids and proteins, not just the cytoskeleton.'],
       ['A membrane that never changes shape', false, '“Fluid” highlights the membrane’s dynamic, flexible nature. Lipids and many proteins move laterally within it.']] }
   ]},
-  { id: 'genetics', name: 'Molecular Biology', short: 'MOLECULAR BIOLOGY', subtitle: 'How cells read the code', icon: '⌬', topic: 'THE MOLECULAR MESSAGE', questions: [
+  { id: 'genetics', name: 'Genes & Inheritance', short: 'GENES & INHERITANCE', subtitle: 'From DNA variation to traits', icon: '⌬', topic: 'GENES & INHERITANCE', questions: [
     { q: 'Which molecule carries the genetic instructions used to build proteins?', answers: [
       ['DNA', true, 'DNA stores the long-term genetic instructions. Cells transcribe genes into RNA, and messenger RNA helps guide protein synthesis.'],
       ['ATP', false, 'ATP supplies energy and building blocks in many processes, but DNA stores the genetic instructions.'],
@@ -160,10 +160,18 @@ const chapters = [
       ['Uracil is an amino acid', false, 'Uracil is a nitrogenous base, not an amino acid. It pairs with adenine in RNA.'],
       ['RNA has no nitrogenous bases', false, 'RNA contains nitrogenous bases A, U, C, and G. Uracil is used in place of thymine.'],
       ['Thymine cannot pair with adenine', false, 'Thymine does pair with adenine in DNA. RNA uses uracil instead, which also pairs with adenine.']] }
-  ]}
+  ]},
+  { id: 'dna', name: 'DNA & Replication', short: 'DNA & REPLICATION', subtitle: 'Store, copy & protect the code', icon: '⌬', topic: 'DNA & REPLICATION', questions: [] },
+  { id: 'gene-expression', name: 'Gene Expression', short: 'GENE EXPRESSION', subtitle: 'How cells read and regulate genes', icon: '↗', topic: 'TRANSCRIPTION & REGULATION', questions: [] },
+  { id: 'translation', name: 'RNA & Translation', short: 'RNA & TRANSLATION', subtitle: 'Decode messages into proteins', icon: '≋', topic: 'RNA & TRANSLATION', questions: [] }
 ];
 
 const QUESTIONS_PER_QUIZ = 5;
+const molecularChapters = Object.fromEntries(chapters.filter(item => ['dna', 'gene-expression', 'translation', 'genetics'].includes(item.id)).map(item => [item.id, item]));
+molecularChapters.dna.questions.push(molecularChapters.genetics.questions[0]);
+molecularChapters['gene-expression'].questions.push(molecularChapters.genetics.questions[1]);
+molecularChapters.translation.questions.push(...molecularChapters.genetics.questions.slice(2));
+molecularChapters.genetics.questions = [];
 chapters.forEach(item => {
   const supplemental = (window.bankA?.[item.id] || []).map(({ q, answers }) => ({ q, answers }));
   item.questions = [...item.questions, ...supplemental].slice(0, 40);
