@@ -26,7 +26,7 @@
           <div class="eyebrow"><span class="eyebrow-line"></span> YOUR NEXT GREAT DISCOVERY</div>
           <h1>Biochemistry<br>has <span class="italic-word">doors.</span></h1>
           <p class="welcome-lede">Every question opens one. Pick the answer that feels right, then step inside to find out why.</p>
-          <div class="welcome-facts"><div><strong>09</strong><span>CHAPTERS</span></div><i></i><div><strong>240+</strong><span>QUESTION BANK</span></div><i></i><div><strong>∞</strong><span>“AHA!” MOMENTS</span></div></div>
+          <div class="welcome-facts"><div><strong>17</strong><span>CHAPTERS</span></div><i></i><div><strong>240+</strong><span>QUESTION BANK</span></div><i></i><div><strong>∞</strong><span>“AHA!” MOMENTS</span></div></div>
           <button class="primary-button" id="start-button"><span>CHOOSE YOUR CHAPTER</span><span class="button-arrow">↗</span></button>
           <div class="tiny-note"><span>✳</span> Five questions per chapter run. No grades, just good questions.</div>
         </div>
@@ -37,7 +37,7 @@
           <div class="art-label art-label-bottom">A LITTLE CURIOSITY GOES A LONG WAY <span>→</span></div>
           <span class="art-star star-one">✳</span><span class="art-star star-two">✴</span>
         </div>
-        <div class="welcome-footer"><span>01 / 09 — PICK A PATH</span><span>MADE FOR THE CURIOUS <span class="footer-spark">✳</span></span></div>
+        <div class="welcome-footer"><span>01 / 17 — PICK A PATH</span><span>MADE FOR THE CURIOUS <span class="footer-spark">✳</span></span></div>
       </section>
 
       <section class="game-screen hidden" id="game-screen">
@@ -66,9 +66,15 @@
       </section>
 
       <section class="chapter-screen hidden" id="chapter-screen">
-        <div class="chapter-screen-head"><button class="back-button" id="home-button"><span>←</span> BACK TO HOME</button><div class="eyebrow"><span class="eyebrow-line"></span> NINE PATHWAYS INTO THE CELL</div><h2>Where to<br><span class="italic-word">begin?</span></h2><p>Choose a chapter. Every door has something to teach you.</p></div>
+        <div class="chapter-screen-head"><button class="back-button" id="home-button"><span>←</span> BACK TO HOME</button><div class="eyebrow"><span class="eyebrow-line"></span> PATHWAYS INTO THE CELL</div><h2>Where to<br><span class="italic-word">begin?</span></h2><p>Choose a chapter, then choose how you want to learn.</p></div>
+        <div class="mode-picker" role="group" aria-label="Choose a learning mode">
+          <button class="mode-button is-active" data-mode="quiz" aria-pressed="true"><strong>Quick quiz</strong><span>Five questions</span></button>
+          <button class="mode-button" data-mode="explain" aria-pressed="false"><strong>Explain it</strong><span>Put answers in your words</span></button>
+          <button class="mode-button" data-mode="define" aria-pressed="false"><strong>Define terms</strong><span>Practice the word bank</span></button>
+          <button class="mode-button" data-mode="all" aria-pressed="false"><strong>Study all</strong><span>Every question in a chapter</span></button>
+        </div>
         <div class="chapter-grid" id="chapter-grid"></div>
-        <div class="chapter-screen-footer"><span>01—09 / YOUR BIOCHEMISTRY FIELD GUIDE</span><span>✳ TAKE THE SCENIC ROUTE</span></div>
+        <div class="chapter-screen-footer"><span id="chapter-count-note">YOUR BIOCHEMISTRY FIELD GUIDE</span><span>✳ TAKE THE SCENIC ROUTE</span></div>
       </section>
 
       <div class="modal-backdrop hidden" id="feedback-modal" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
@@ -78,15 +84,20 @@
           <div class="feedback-choice" id="feedback-choice"></div>
           <h2 id="feedback-title">You found it.</h2>
           <p class="feedback-explanation" id="feedback-explanation"></p>
+          <div class="explain-box hidden" id="explain-box"><label for="explain-input">YOUR EXPLANATION</label><textarea id="explain-input" rows="3" maxlength="500" placeholder="Explain the key idea in your own words…" autocomplete="off"></textarea><div class="analogy-error hidden" id="explain-error">Write a little more before checking your explanation.</div><div class="explain-review hidden" id="explain-review" aria-live="polite"></div><button class="analogy-submit" id="explain-submit">CHECK MY EXPLANATION ↗</button></div>
           <div class="analogy-review hidden" id="analogy-review" aria-live="polite"></div>
           <div class="analogy-box hidden" id="analogy-box"><div class="analogy-heading"><span>✎</span> MAKE IT MAKE SENSE</div><p id="analogy-prompt">Connect the idea to something familiar. What maps to what—and where does the comparison stop matching?</p><label for="analogy-input">YOUR ANALOGY</label><textarea id="analogy-input" rows="3" maxlength="280" placeholder="It's a little like…" autocomplete="off"></textarea><div class="analogy-bottom"><span id="analogy-hint">A comparison in your own words (at least 12 characters).</span><span id="char-count">0 / 280</span></div><div class="analogy-error hidden" id="analogy-error">Add a little more detail to your analogy before continuing.</div><button class="analogy-submit" id="analogy-submit">LOCK IN MY ANALOGY <span>↗</span></button></div>
           <div class="feedback-actions" id="feedback-actions"><button class="continue-button" id="continue-button">NEXT QUESTION <span>→</span></button><button class="review-button" id="review-button">REVISIT THIS QUESTION</button></div>
         </div>
       </div>
+      <section class="word-practice hidden" id="word-practice-screen" aria-labelledby="practice-term"><button class="back-button" id="practice-back"><span>←</span> ALL CHAPTERS</button><div class="practice-card"><div class="eyebrow"><span class="eyebrow-line"></span> DEFINE IT IN YOUR OWN WORDS</div><div class="practice-progress" id="practice-progress">TERM 01 / 01</div><h2 id="practice-term"></h2><p>Write what you think this term means. Then reveal the field-guide definition and compare.</p><label for="definition-input">YOUR DEFINITION</label><textarea id="definition-input" rows="4" maxlength="500" placeholder="I think this means…"></textarea><div class="analogy-error hidden" id="definition-error">Add a little more detail before checking your definition.</div><div class="practice-actions"><button class="primary-button" id="definition-check"><span>CHECK MY DEFINITION</span><span class="button-arrow">↗</span></button><button class="review-button hidden" id="definition-next">NEXT TERM →</button></div><div class="definition-reveal hidden" id="definition-reveal" aria-live="polite"></div></div></section>
+
+      <div class="modal-backdrop hidden" id="word-bank-modal" role="dialog" aria-modal="true" aria-labelledby="word-bank-title"><div class="word-bank-card"><div class="feedback-top"><h2 id="word-bank-title">WORD BANK</h2><button class="modal-close" id="word-bank-close" aria-label="Close word bank">×</button></div><div id="word-bank-content"></div></div></div>
       <section class="complete-screen hidden" id="complete-screen"><div class="complete-card"><div class="complete-ornament">✳</div><div class="eyebrow"><span class="eyebrow-line"></span> EXPEDITION COMPLETE</div><h2>Look at you,<br><span class="italic-word">cell explorer.</span></h2><p id="complete-message">You made it through every door.</p><div class="complete-stats"><div><strong id="final-score">0/5</strong><span>FIRST-TRY FINDS</span></div><i></i><div><strong id="final-streak">0</strong><span>BEST STREAK</span></div></div><button class="primary-button" id="replay-button"><span>EXPLORE THIS CHAPTER AGAIN</span><span class="button-arrow">↗</span></button><button class="review-button complete-chapters" id="complete-chapters">PICK ANOTHER CHAPTER</button></div><div class="complete-decoration"><div class="complete-ring ring-a"></div><div class="complete-ring ring-b"></div><span>ATP</span><span>H₂O</span><span>✦</span></div></section>
     </main>
   </div>
   <script src="bank-a.js"></script>
+  <script src="learning-data.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

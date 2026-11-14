@@ -177,8 +177,14 @@ chapters.forEach(item => {
   item.questions = [...item.questions, ...supplemental].slice(0, 40);
 });
 
+(window.extraLearningChapters || []).forEach(item => {
+  if (!chapters.some(chapter => chapter.id === item.id)) chapters.push(item);
+});
+chapters.forEach(item => { item.words ||= (window.extraChapterWords || {})[item.id] || []; });
+const MODES = { quiz: 'quiz', explain: 'explain', define: 'define', all: 'all' };
+
 const $ = (selector) => document.querySelector(selector);
-const screens = { welcome: $('#welcome-screen'), chapters: $('#chapter-screen'), game: $('#game-screen'), complete: $('#complete-screen') };
+const screens = { welcome: $('#welcome-screen'), chapters: $('#chapter-screen'), game: $('#game-screen'), practice: $('#word-practice-screen'), complete: $('#complete-screen') };
 const modal = $('#feedback-modal');
 let chapter = null;
 let questionIndex = 0;
@@ -191,10 +197,16 @@ let soundOn = false;
 let audioContext;
 let currentOptions = [];
 let currentQuestions = [];
+let gameMode = MODES.quiz;
+let wordIndex = 0;
+let wordTerms = [];
+let wordTimer = null;
+let longPressTriggered = false;
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, element]) => element.classList.toggle('hidden', key !== name));
   modal.classList.add('hidden');
+  $('#word-bank-modal').classList.add('hidden');
 }
 function playTone(correct) {
   if (!soundOn) return;
@@ -263,7 +275,13 @@ function answerDoor(optionIndex) {
   $('#feedback-choice').textContent = `YOU CHOSE: ${picked[0].toUpperCase()}`;
   $('#feedback-title').textContent = isCorrect ? 'You found it.' : 'Not quite this time.';
   $('#feedback-explanation').textContent = isCorrect ? picked[2] : `${picked[2]} The answer to look for is “${correctAnswer[0]}.” ${correctAnswer[2]}`;
-  $('#analogy-box').classList.toggle('hidden', isCorrect);
+  $('#analogy-box').classList.toggle('hidden', isCorrect || gameMode === MODES.explain);
+  $('#explain-box').classList.toggle('hidden', gameMode !== MODES.explain);
+  $('#explain-review').classList.add('hidden');
+  $('#explain-input').value = '';
+  $('#explain-error').classList.add('hidden');
+  $('#explain-submit').textContent = 'CHECK MY EXPLANATION ↗';
+  $('#feedback-actions').classList.toggle('hidden', gameMode === MODES.explain || !isCorrect);
   $('#analogy-review').classList.add('hidden');
   $('#analogy-review').replaceChildren();
   $('#analogy-error').classList.add('hidden');
@@ -271,23 +289,86 @@ function answerDoor(optionIndex) {
   $('#char-count').textContent = '0 / 280';
   $('#analogy-submit').textContent = 'LOCK IN MY ANALOGY ↗';
   $('#continue-button').textContent = 'NEXT QUESTION →';
-  $('#feedback-actions').classList.toggle('hidden', !isCorrect);
-  $('#review-button').classList.toggle('hidden', !isCorrect);
-  $('#modal-close').classList.toggle('hidden', !isCorrect);
+  $('#feedback-actions').classList.toggle('hidden', gameMode === MODES.explain || !isCorrect);
+  $('#review-button').classList.toggle('hidden', !isCorrect || gameMode === MODES.explain);
+  $('#modal-close').classList.toggle('hidden', !isCorrect || gameMode === MODES.explain);
   modal.classList.remove('hidden');
   if (!isCorrect) $('#analogy-input').focus();
   else $('#continue-button').focus();
 }
 function selectChapter(selected) {
   chapter = selected;
-  currentQuestions = shuffle(chapter.questions).slice(0, QUESTIONS_PER_QUIZ);
+  if (gameMode === MODES.define) {
+    startWordPractice();
+    return;
+  }
+  currentQuestions = shuffle(chapter.questions).slice(0, gameMode === MODES.all ? chapter.questions.length : QUESTIONS_PER_QUIZ);
   questionIndex = score = streak = bestStreak = 0;
   renderQuestion();
   showScreen('game');
 }
+function renderWordBank(selected) {
+  const terms = selected.words || [];
+  $('#word-bank-title').textContent = `${selected.name} · WORD BANK`;
+  $('#word-bank-content').replaceChildren();
+  if (!terms.length) {
+    const note = document.createElement('p');
+    note.className = 'word-bank-empty';
+    note.textContent = 'This chapter does not have a dedicated word bank yet.';
+    $('#word-bank-content').append(note);
+  } else {
+    terms.forEach(([term, definition]) => {
+      const entry = document.createElement('article');
+      entry.className = 'word-entry';
+      const heading = document.createElement('h3');
+      const body = document.createElement('p');
+      heading.textContent = term;
+      body.textContent = definition;
+      entry.append(heading, body);
+      $('#word-bank-content').append(entry);
+    });
+  }
+  $('#word-bank-modal').classList.remove('hidden');
+}
+function startWordPractice() {
+  wordIndex = 0;
+  wordTerms = shuffle(chapter.words || []);
+  if (!wordTerms.length) {
+    renderWordBank(chapter);
+    return;
+  }
+  renderWordTerm();
+  showScreen('practice');
+}
+function renderWordTerm() {
+  const [term] = wordTerms[wordIndex];
+  $('#practice-progress').textContent = `TERM ${String(wordIndex + 1).padStart(2, '0')} / ${String(wordTerms.length).padStart(2, '0')}`;
+  $('#practice-term').textContent = term;
+  $('#definition-input').value = '';
+  $('#definition-error').classList.add('hidden');
+  $('#definition-reveal').classList.add('hidden');
+  $('#definition-reveal').replaceChildren();
+  $('#definition-check').classList.remove('hidden');
+  $('#definition-next').classList.add('hidden');
+  $('#definition-next').textContent = wordIndex === wordTerms.length - 1 ? 'FINISH PRACTICE →' : 'NEXT TERM →';
+}
 function renderChapters() {
-  $('#chapter-grid').innerHTML = chapters.map((item, index) => `<button class="chapter-card" data-chapter="${item.id}"><span class="chapter-card-top"><span>CHAPTER 0${index + 1}</span><span class="chapter-card-icon">${item.icon}</span></span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.subtitle)}</p><span class="chapter-card-arrow">↗</span></button>`).join('');
-  $('#chapter-grid').querySelectorAll('.chapter-card').forEach((button, index) => button.addEventListener('click', () => selectChapter(chapters[index])));
+  $('#chapter-grid').innerHTML = chapters.map((item, index) => `<article class="chapter-card-wrap"><button class="chapter-card" data-chapter="${item.id}" aria-label="Start ${escapeHtml(item.name)} chapter"><span class="chapter-card-top"><span>CHAPTER ${String(index + 1).padStart(2, '0')}</span><span class="chapter-card-icon">${item.icon}</span></span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.subtitle)}</p><span class="chapter-card-arrow">↗</span></button><button class="word-bank-trigger" data-bank="${item.id}" aria-label="Open ${escapeHtml(item.name)} word bank">WORD BANK · HOLD CHAPTER</button></article>`).join('');
+  $('#chapter-count-note').textContent = `${String(chapters.length).padStart(2, '0')} CHAPTERS · FIELD GUIDE`;
+  $('#chapter-grid').querySelectorAll('.chapter-card').forEach((button, index) => {
+    const selected = chapters[index];
+    button.addEventListener('click', () => {
+      if (longPressTriggered) { longPressTriggered = false; return; }
+      selectChapter(selected);
+    });
+    button.addEventListener('pointerdown', () => {
+      longPressTriggered = false;
+      wordTimer = window.setTimeout(() => { longPressTriggered = true; renderWordBank(selected); }, 550);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(type => button.addEventListener(type, () => window.clearTimeout(wordTimer)));
+    button.addEventListener('contextmenu', event => { event.preventDefault(); renderWordBank(selected); });
+  });
+  $('#chapter-grid').querySelectorAll('.word-bank-trigger').forEach((button, index) => button.addEventListener('click', () => renderWordBank(chapters[index])));
 }
 function continueGame() {
   modal.classList.add('hidden');
@@ -361,6 +442,74 @@ $('#analogy-submit').addEventListener('click', () => {
   $('#continue-button').textContent = 'NEXT QUESTION →';
   $('#continue-button').focus();
 });
+$('#explain-input').addEventListener('input', () => $('#explain-error').classList.add('hidden'));
+$('#explain-submit').addEventListener('click', () => {
+  const explanation = $('#explain-input').value.trim();
+  if (explanation.replace(/\s/g, '').length < 12) {
+    $('#explain-error').classList.remove('hidden');
+    $('#explain-input').focus();
+    return;
+  }
+  const correctAnswer = currentQuestions[questionIndex].answers.find(answer => answer[1]);
+  $('#explain-review').replaceChildren();
+  [
+    `In your words: “${explanation}”`,
+    `Compare with the key idea: ${correctAnswer[0]}.`,
+    `Why it matters: ${correctAnswer[2]}`,
+    'Self-check: did your explanation include the central idea, and what would you refine?'
+  ].forEach(text => {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    $('#explain-review').append(paragraph);
+  });
+  $('#explain-review').classList.remove('hidden');
+  $('#feedback-actions').classList.remove('hidden');
+  $('#feedback-status').textContent = 'EXPLANATION REVIEW · PATH CLEAR';
+  $('#feedback-title').textContent = 'Explain—and refine—the idea.';
+  $('#continue-button').textContent = 'NEXT QUESTION →';
+  $('#continue-button').focus();
+});
+$('#definition-input').addEventListener('input', () => $('#definition-error').classList.add('hidden'));
+$('#definition-check').addEventListener('click', () => {
+  const attempt = $('#definition-input').value.trim();
+  if (attempt.replace(/\s/g, '').length < 12) {
+    $('#definition-error').classList.remove('hidden');
+    $('#definition-input').focus();
+    return;
+  }
+  const [term, definition] = wordTerms[wordIndex];
+  const attemptLine = document.createElement('p');
+  const definitionLine = document.createElement('p');
+  const prompt = document.createElement('p');
+  attemptLine.textContent = `Your definition: “${attempt}”`;
+  definitionLine.textContent = `Field-guide definition: ${definition}`;
+  prompt.textContent = 'Compare them: what was accurate, and what would you add or adjust?';
+  $('#definition-reveal').replaceChildren(attemptLine, definitionLine, prompt);
+  $('#definition-reveal').classList.remove('hidden');
+  $('#definition-check').classList.add('hidden');
+  $('#definition-next').classList.remove('hidden');
+});
+$('#definition-next').addEventListener('click', () => {
+  if (wordIndex >= wordTerms.length - 1) {
+    renderChapters();
+    showScreen('chapters');
+    return;
+  }
+  wordIndex++;
+  renderWordTerm();
+  $('#definition-input').focus();
+});
+$('#practice-back').addEventListener('click', () => { renderChapters(); showScreen('chapters'); });
+$('.mode-picker').querySelectorAll('.mode-button').forEach(button => button.addEventListener('click', () => {
+  gameMode = button.dataset.mode;
+  $('.mode-picker').querySelectorAll('.mode-button').forEach(modeButton => {
+    const active = modeButton === button;
+    modeButton.classList.toggle('is-active', active);
+    modeButton.setAttribute('aria-pressed', String(active));
+  });
+}));
+$('#word-bank-close').addEventListener('click', () => $('#word-bank-modal').classList.add('hidden'));
+$('#word-bank-modal').addEventListener('click', event => { if (event.target === $('#word-bank-modal')) $('#word-bank-modal').classList.add('hidden'); });
 $('#replay-button').addEventListener('click', () => selectChapter(chapter));
 $('#complete-chapters').addEventListener('click', () => { renderChapters(); showScreen('chapters'); });
 $('#sound-toggle').addEventListener('click', () => {
