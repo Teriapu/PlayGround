@@ -204,6 +204,8 @@ body{user-select:none;-webkit-user-select:none;cursor:default}
 #clickcatch .cc{font-family:'Barlow',sans-serif;font-size:10px;letter-spacing:.3em;color:#e9f0e7;background:rgba(6,9,10,.85);border:1px solid #3c4741;padding:14px 26px;text-shadow:0 1px 5px #000}
 
 .mobile-only{display:none}
+#touchControls{display:none}
+#rotatePrompt{display:none}
 @media(max-width:820px){
   #minimapwrap{width:120px;height:120px;left:12px;bottom:12px}
   #streaks{bottom:142px;left:12px;gap:4px}
@@ -226,6 +228,49 @@ body{user-select:none;-webkit-user-select:none;cursor:default}
   .logo{font-size:52px}.menu-sub{display:none}.loadouts{margin:14px 0}.controls{display:none}
   #menu .menu-inner{padding-top:20px}
 }
+/* Android landscape touch layout */
+@media (pointer:coarse) and (orientation:landscape){
+  #touchControls{display:block;position:fixed;inset:0;z-index:23;pointer-events:none}
+  #touchControls.hidden{display:none!important}
+  #lookArea{position:absolute;left:38%;right:0;top:0;bottom:0;pointer-events:auto;touch-action:none}
+  .touch-btn{pointer-events:auto;touch-action:none;border:1px solid rgba(255,255,255,.42);background:rgba(9,14,15,.55);color:#fff;border-radius:50%;font:800 10px 'Barlow',Arial,sans-serif;letter-spacing:.08em;text-shadow:0 1px 3px #000;box-shadow:0 3px 12px #0006;display:flex;align-items:center;justify-content:center;padding:0;user-select:none;-webkit-user-select:none}
+  .touch-btn:active,.touch-btn.down{background:rgba(255,122,38,.78);border-color:#ffc18c}
+  #movePad{pointer-events:auto;touch-action:none;position:absolute;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:clamp(94px,19vh,142px);height:clamp(94px,19vh,142px);border:1px solid #ffffff55;border-radius:50%;background:#090e0f55;box-shadow:inset 0 0 24px #0005}
+  #moveNub{position:absolute;left:50%;top:50%;width:40%;height:40%;transform:translate(-50%,-50%);border-radius:50%;background:#dbe5dc66;border:1px solid #ffffff80;pointer-events:none}
+  #touchActions{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));width:clamp(190px,36vh,230px);height:clamp(190px,36vh,220px);pointer-events:none}
+  #touchActions .touch-btn{position:absolute}
+  #touchFire{width:clamp(66px,13vh,92px);height:clamp(66px,13vh,92px);right:0;bottom:0;background:rgba(190,63,38,.68);font-size:12px}
+  #touchAim{width:52px;height:52px;right:82px;bottom:11px}
+  #touchJump{width:48px;height:48px;right:16px;bottom:104px}
+  #touchReload{width:44px;height:44px;right:78px;bottom:83px}
+  #touchGrenade{width:44px;height:44px;right:132px;bottom:61px}
+  #touchKnife{width:40px;height:40px;right:133px;bottom:10px}
+  #touchSwap{width:46px;height:42px;right:82px;bottom:147px;border-radius:12px}
+  #touchPause{position:absolute;right:max(12px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));width:42px;height:38px;border-radius:8px;font-size:9px}
+  #touchControls .touch-streaks{position:absolute;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:6px;pointer-events:none}
+  .touch-streak{pointer-events:auto;touch-action:none;width:44px;height:34px;border-radius:6px;font-size:8px}
+  #minimapwrap{width:clamp(82px,15vh,112px);height:clamp(82px,15vh,112px);left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));bottom:auto}
+  #healthwrap{left:max(10px,env(safe-area-inset-left));bottom:calc(max(10px,env(safe-area-inset-bottom)) + clamp(90px,16vh,120px));width:clamp(82px,15vh,112px)}
+  #equip{display:none}
+  #streaks{display:none} #weaponhud{right:max(12px,env(safe-area-inset-right));bottom:calc(max(12px,env(safe-area-inset-bottom)) + clamp(190px,43vh,230px));min-width:100px}
+  #weaponName{font-size:15px}#ammoMag{font-size:27px}#ammoRes{font-size:12px}#weaponMode{font-size:6px}
+  #matchbar{top:max(8px,env(safe-area-inset-top));transform:translateX(-50%) scale(.78);transform-origin:top center}
+  #killfeed{right:60px;top:10px;max-width:180px}.kf{font-size:9px}
+  #menu .menu-inner{padding:18px 26px;justify-content:center;min-height:100%}
+  .logo{font-size:clamp(48px,9vh,76px)}.logo small{font-size:15px;margin-top:6px}
+  .eyebrow{margin-bottom:6px;font-size:8px}.menu-sub{margin-top:8px;font-size:9px;line-height:1.4}
+  .loadouts{gap:7px;margin:12px 0;max-width:670px}.loadout{min-width:0;padding:9px 10px}.lo-name{font-size:17px}.lo-perk{font-size:7px}.lo-gun{font-size:7px;margin-bottom:3px}
+  .controls{display:none}.menu-foot{right:12px;bottom:10px;font-size:7px}.legal{display:none}
+  .deploy{font-size:16px;padding:12px 25px}.menu-actions{gap:12px}
+}
+@media (pointer:coarse) and (orientation:portrait){
+  #rotatePrompt{display:flex;position:fixed;inset:0;z-index:100;background:#080b0c;color:#f2f4ee;align-items:center;justify-content:center;text-align:center;padding:26px;font-family:'Barlow Condensed',Arial,sans-serif}
+  #rotatePrompt .rotate-card{max-width:300px}
+  #rotatePrompt .rotate-icon{font-size:58px;color:#ff7a26;line-height:1;margin-bottom:14px;display:block;animation:rotateHint 1.8s ease-in-out infinite}
+  #rotatePrompt b{display:block;font-size:23px;letter-spacing:.12em}
+  #rotatePrompt span{display:block;font:10px 'Barlow',Arial,sans-serif;letter-spacing:.18em;color:#9aa79c;margin-top:8px;line-height:1.7}
+}
+@keyframes rotateHint{50%{transform:rotate(-90deg)}}
 </style>
 </head>
 <body>
@@ -366,6 +411,32 @@ body{user-select:none;-webkit-user-select:none;cursor:default}
 </div>
 
 <div id="clickcatch" class="hidden"><div class="cc">CLICK TO CAPTURE MOUSE</div></div>
+
+<div id="touchControls" class="hidden" aria-label="Touch controls">
+  <div id="lookArea" aria-hidden="true"></div>
+  <div id="movePad" aria-label="Move">
+    <div id="moveNub"></div>
+  </div>
+  <div id="touchActions">
+    <button class="touch-btn" id="touchFire" data-touch-action="fire">FIRE</button>
+    <button class="touch-btn" id="touchAim" data-touch-action="aim">AIM</button>
+    <button class="touch-btn" id="touchJump" data-touch-action="jump">JUMP</button>
+    <button class="touch-btn" id="touchReload" data-touch-action="reload">R</button>
+    <button class="touch-btn" id="touchGrenade" data-touch-action="grenade">FRAG</button>
+    <button class="touch-btn" id="touchKnife" data-touch-action="knife">KNIFE</button>
+    <button class="touch-btn" id="touchSwap" data-touch-action="swap">SWAP</button>
+  </div>
+  <button class="touch-btn" id="touchPause" data-touch-action="pause">Ⅱ</button>
+  <div class="touch-streaks">
+    <button class="touch-btn touch-streak" data-touch-action="streak0">UAV</button>
+    <button class="touch-btn touch-streak" data-touch-action="streak1">H-K</button>
+    <button class="touch-btn touch-streak" data-touch-action="streak2">STRIKE</button>
+  </div>
+</div>
+
+<div id="rotatePrompt" role="status" aria-live="polite">
+  <div class="rotate-card"><b class="rotate-icon">▱</b><b>ROTATE YOUR DEVICE</b><span>BLACKOUT OPS IS DESIGNED FOR LANDSCAPE PLAY</span></div>
+</div>
 
 <div id="loading">
   <div class="ld-logo">BLACKOUT</div>

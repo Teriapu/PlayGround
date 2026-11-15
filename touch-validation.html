@@ -1,0 +1,11 @@
+<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body><iframe id="game" src="/" style="position:fixed;inset:0;width:100vw;height:100vh;border:0"></iframe><pre id="result" style="position:fixed;top:0;left:0;z-index:9999;color:transparent"></pre><script>
+const frame=document.querySelector('#game');
+frame.addEventListener('load',()=>setTimeout(()=>{
+ const w=frame.contentWindow,d=frame.contentDocument;
+ d.querySelector('#deployBtn').click();
+ setTimeout(()=>{
+  const controls=d.querySelector('#touchControls');
+  document.querySelector('#result').textContent=JSON.stringify({innerWidth:w.innerWidth,innerHeight:w.innerHeight,coarse:w.matchMedia('(pointer:coarse)').matches,landscape:w.matchMedia('(orientation:landscape)').matches,touchPoints:w.navigator.maxTouchPoints,active:d.querySelector('#hud').classList.contains('hidden')===false,controlsDisplay:w.getComputedStyle(controls).display,controlsHidden:controls.classList.contains('hidden'),buttons:[...d.querySelectorAll('#touchControls [data-touch-action]')].map(b=>({id:b.id,rect:[...['left','top','width','height'].map(k=>Math.round(b.getBoundingClientRect()[k]))})),error:d.querySelector('#ldTxt')?.textContent});
+ },2200);
+},1200));
+</script></body>
