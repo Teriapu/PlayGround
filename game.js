@@ -202,6 +202,31 @@ let wordIndex = 0;
 let wordTerms = [];
 let wordTimer = null;
 let longPressTriggered = false;
+const PROGRESS_STORAGE_KEY = 'cell-quest-answered-v1';
+let savedProgress = {};
+try {
+  const storedProgress = JSON.parse(window.localStorage.getItem(PROGRESS_STORAGE_KEY) || '{}');
+  if (storedProgress && typeof storedProgress === 'object' && !Array.isArray(storedProgress)) savedProgress = storedProgress;
+} catch (_) { /* Progress still works for this visit if storage is unavailable. */ }
+
+function answeredQuestions(chapterId) {
+  return new Set(Array.isArray(savedProgress[chapterId]) ? savedProgress[chapterId] : []);
+}
+function hasAnsweredQuestion(selectedChapter, question) {
+  return answeredQuestions(selectedChapter.id).has(question.q);
+}
+function saveAnsweredQuestion(selectedChapter, question) {
+  const answered = answeredQuestions(selectedChapter.id);
+  answered.add(question.q);
+  savedProgress[selectedChapter.id] = [...answered];
+  try { window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(savedProgress)); }
+  catch (_) { /* The current session can continue if browser storage is full or disabled. */ }
+}
+function updateQuestionProgress() {
+  const answered = currentQuestions.map(question => hasAnsweredQuestion(chapter, question));
+  $('#progress-dots').innerHTML = answered.map(done => `<span class="${done ? 'done' : ''}"${done ? ' aria-label="Answered"' : ' aria-label="Not answered yet"'}></span>`).join('');
+  $('#question-saved-mark').classList.toggle('hidden', !answered[questionIndex]);
+}
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, element]) => element.classList.toggle('hidden', key !== name));
@@ -243,7 +268,7 @@ function renderQuestion() {
   $('#question-text').textContent = question.q;
   $('#progress-count').textContent = `${String(questionIndex + 1).padStart(2, '0')} / ${String(currentQuestions.length).padStart(2, '0')}`;
   $('#progress-fill').style.width = `${(questionIndex / currentQuestions.length) * 100}%`;
-  $('#progress-dots').innerHTML = currentQuestions.map((_, i) => `<span class="${i < questionIndex ? 'done' : ''}"></span>`).join('');
+  updateQuestionProgress();
   $('#streak-count').textContent = streak;
   $('#score-count').textContent = score;
   $('#doors-grid').innerHTML = currentOptions.map((answer, i) => `<button class="answer-door" data-option="${i}" aria-label="Door ${i + 1}: ${escapeHtml(answer[0])}"><span class="door-number-small">0${i + 1}</span><span class="door-arch"><span class="door-glyph-small">${['✳', '◉', '⌘', '✦'][i]}</span></span><span class="door-answer">${escapeHtml(answer[0])}</span><span class="door-enter">STEP INSIDE ↗</span></button>`).join('');
@@ -256,7 +281,10 @@ function answerDoor(optionIndex) {
   if (hasAnswered) return;
   hasAnswered = true;
   const picked = currentOptions[optionIndex];
-  const correctAnswer = currentQuestions[questionIndex].answers.find(answer => answer[1]);
+  const currentQuestion = currentQuestions[questionIndex];
+  saveAnsweredQuestion(chapter, currentQuestion);
+  updateQuestionProgress();
+  const correctAnswer = currentQuestion.answers.find(answer => answer[1]);
   const isCorrect = picked[1];
   document.querySelectorAll('.answer-door').forEach(button => button.disabled = true);
   if (!reviewingQuestion) {
@@ -353,7 +381,16 @@ function renderWordTerm() {
   $('#definition-next').textContent = wordIndex === wordTerms.length - 1 ? 'FINISH PRACTICE →' : 'NEXT TERM →';
 }
 function renderChapters() {
-  $('#chapter-grid').innerHTML = chapters.map((item, index) => `<article class="chapter-card-wrap"><button class="chapter-card" data-chapter="${item.id}" aria-label="Start ${escapeHtml(item.name)} chapter"><span class="chapter-card-top"><span>CHAPTER ${String(index + 1).padStart(2, '0')}</span><span class="chapter-card-icon">${item.icon}</span></span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.subtitle)}</p><span class="chapter-card-arrow">↗</span></button><button class="word-bank-trigger" data-bank="${item.id}" aria-label="Open ${escapeHtml(item.name)} word bank">WORD BANK · HOLD CHAPTER</button></article>`).join('');
+  $('#chapter-grid').innerHTML = chapters.map((item, index) => {
+    const answered = answeredQuestions(item.id);
+    const questionChecks = item.questions.map((question, questionIndex) => {
+      const done = answered.has(question.q);
+      const status = done ? 'answered' : 'not answered yet';
+      return `<span class="question-check ${done ? 'is-answered' : ''}" title="Question ${String(questionIndex + 1).padStart(2, '0')}: ${status}" aria-label="Question ${questionIndex + 1}: ${status}">${done ? '✓' : ''}</span>`;
+    }).join('');
+    const count = item.questions.filter(question => answered.has(question.q)).length;
+    return `<article class="chapter-card-wrap"><button class="chapter-card" data-chapter="${item.id}" aria-label="Start ${escapeHtml(item.name)} chapter"><span class="chapter-card-top"><span>CHAPTER ${String(index + 1).padStart(2, '0')}</span><span class="chapter-card-icon">${item.icon}</span></span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.subtitle)}</p><div class="chapter-progress-summary"><span>${count} / ${item.questions.length} questions answered</span><div class="chapter-question-checks" aria-label="Question completion">${questionChecks}</div></div><span class="chapter-card-arrow">↗</span></button><button class="word-bank-trigger" data-bank="${item.id}" aria-label="Open ${escapeHtml(item.name)} word bank">WORD BANK · HOLD CHAPTER</button><button class="chapter-reset" data-reset="${item.id}" ${count ? '' : 'disabled'} aria-label="Reset ${escapeHtml(item.name)} chapter progress">↺ RESET PROGRESS</button></article>`;
+  }).join('');
   $('#chapter-count-note').textContent = `${String(chapters.length).padStart(2, '0')} CHAPTERS · FIELD GUIDE`;
   $('#chapter-grid').querySelectorAll('.chapter-card').forEach((button, index) => {
     const selected = chapters[index];
@@ -369,6 +406,15 @@ function renderChapters() {
     button.addEventListener('contextmenu', event => { event.preventDefault(); renderWordBank(selected); });
   });
   $('#chapter-grid').querySelectorAll('.word-bank-trigger').forEach((button, index) => button.addEventListener('click', () => renderWordBank(chapters[index])));
+  $('#chapter-grid').querySelectorAll('.chapter-reset').forEach(button => button.addEventListener('click', event => {
+    event.stopPropagation();
+    const selected = chapters.find(item => item.id === button.dataset.reset);
+    if (!selected || !window.confirm(`Reset saved question progress for ${selected.name}?`)) return;
+    delete savedProgress[selected.id];
+    try { window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(savedProgress)); }
+    catch (_) { /* The in-memory reset still takes effect for this visit. */ }
+    renderChapters();
+  }));
 }
 function continueGame() {
   modal.classList.add('hidden');
